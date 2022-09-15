@@ -13,8 +13,9 @@ shinyServer(function(input, output) {
   
   data <- data[,c(-1,-3,-4,-9)]
   
-  output$table_data <- renderTable({
+  output$plot_gen_1 <- renderPlot({
     data_2 <- data[(data[,12]>0), ]
     data_good <- data_2[order(data_2[,12],decreasing=F), ]
+    hist(data_good[,12])
   })
 })

@@ -9,7 +9,7 @@ shinyUI(fluidPage(
   
   tabsetPanel(
     tabPanel("Général",
-      tableOutput("table_data"),
+      plotOutput("plot_gen_1"),
     ),
     tabPanel("Poste",
     ),
