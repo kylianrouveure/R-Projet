@@ -13,17 +13,6 @@ shinyServer(function(input, output) {
   
   data <- data[,c(-1,-3,-4,-9)]
   
-  output$title <- renderText({
-    paste("<div id='header' >
-          <br/>
-          <i>HABDI Souleimane, VIENNE Soleymane, NICOLAS Romain & ROUVEURE Kylian</i>
-          <br/><br/>
-          <center><strong style='text-decoration: underline;font-weight: lighter;font-size:2em;' >
-            Projet R : Ligue 1 Uber Eats
-          </strong></center>
-          </div>")
-  })
-  
   output$table_data <- renderTable({
     data_2 <- data[(data[,12]>0), ]
     data_good <- data_2[order(data_2[,12],decreasing=F), ]

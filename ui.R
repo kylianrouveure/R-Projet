@@ -5,11 +5,11 @@ shinyUI(fluidPage(
     includeCSS("style.css"),
   ),
   
-  tableOutput("title"),
+  includeHTML("INCLUDE/header.html"),
   
   tabsetPanel(
     tabPanel("Général",
-             tableOutput("table_data")
+      tableOutput("table_data"),
     ),
     tabPanel("Poste",
     ),
