@@ -25,7 +25,7 @@ shinyServer(function(input, output) {
   })
   
   output$table_data <- renderTable({
-    data_2 <- data[(data[,11]>0), ]
-    data_good <- data_2[order(data_2[,11],decreasing=F), ]
+    data_2 <- data[(data[,12]>0), ]
+    data_good <- data_2[order(data_2[,12],decreasing=F), ]
   })
 })
