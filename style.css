@@ -1,8 +1,7 @@
 body {
-  color: #3FC060;
-  background-color: rgba(22, 35, 40, 0.7);
-  font-family: 'Noto sans';
+  font-family: "Gill Sans", sans-serif;
   text-align: center;
+  animation-duration: 1.5s;
 }
 ::-webkit-scrollbar {
   width: 5px;
@@ -14,21 +13,6 @@ body {
   background-color: dimgray;
   border-radius: 5px;
 }
-#header {
-  background-color: #162328;
-  margin: -8px -15px 10px -15px;
-  padding: 10px;
-  border-radius: 0 0 20px 20px;
+#imageHeader {
   
-}
-#header_name {
-  padding: 10px;
-  font-size: 0.8em;
-  font-style: italic;
-  float: left;
-}
-#header_title {
-  width: 100%;
-  font-size: 2.5em;
-  text-align: center;
 }

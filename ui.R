@@ -5,17 +5,18 @@ shinyUI(fluidPage(
     includeCSS("style.css"),
   ),
   
-  includeHTML("INCLUDE/header.html"),
+  tableOutput("title"),
   
   tabsetPanel(
-    tabPanel("Général",
-      plotOutput("plot_gen_1"),
+    mainPanel(
+      tableOutput("graph_gen")
     ),
-    tabPanel("Poste",
-    ),
-    tabPanel("Team",
-    ),
-    tabPanel("Player",
-    ),
+    sidebarPanel(
+      uiOutput("opt_team"),
+      uiOutput("opt_pays"),
+      uiOutput("opt_player"),
+      selectInput("opt_var", "Variable Principale", c('Tous', 'AGE', 'POSTE', 'VALEUR', 'MINUTE', 'BUT', 'PASSE D', 'EFFICACITE', 'EFF/MIN')),
+      tableOutput("resume_panel")
+    )
   )
 ))
