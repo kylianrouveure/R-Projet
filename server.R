@@ -1,8 +1,16 @@
 library(readxl)
 library(shiny)
 library(scales)
+library("RMySQL")
 
 shinyServer(function(input, output) {
+  #bdd <- dbConnect(MySQL(), user = 'root', password = NULL, dbname = 'projet_r', host = '127.0.0.1', charset='utf8')
+  
+  #data_team <- fetch(dbSendQuery(bdd, "SELECT * FROM club"))
+  #data_country <- fetch(dbSendQuery(bdd, "SELECT * FROM country"))
+  #data_player <-  fetch(dbSendQuery(bdd, "SELECT name FROM player"))
+  #data_perform <-  fetch(dbSendQuery(bdd, "SELECT name FROM perform"))
+  
   data_team <- read_excel(path = "DATA/data.xlsx", col_names = TRUE, sheet = "CLUB")
   data_country <- read_excel(path = "DATA/data.xlsx", col_names = TRUE, sheet = "COUNTRY")
   data_player <- read_excel(path = "DATA/data.xlsx", col_names = TRUE, sheet = "PLAYER")
@@ -17,7 +25,7 @@ shinyServer(function(input, output) {
   output$title <- renderText({
     paste("<div id='header' >
           <br/>
-          <i>HABDI Souleimane, VIENNE Soleymane, NICOLAS Romain & ROUVEURE Kylian</i>
+          <i>HADBI Souleimane, VIENNE Soleymane, DE NICOLA Romain & ROUVEURE Kylian</i>
           <br/><br/>
           <center><strong style='text-decoration: underline;font-weight: lighter;font-size:2em;' >
             Projet R : Ligue 1
@@ -214,6 +222,128 @@ shinyServer(function(input, output) {
     }
     
     paste("<center><strong style='font-size:1.5em;' >Info Gen</strong><br/>", content)
+  })
+  
+  output$all_data <- renderTable({
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    if(input$opt_var == 'AGE') {
+      player<-player[c(1,2,3)]
+    }
+    else if(input$opt_var == 'POSTE') {
+      player<-player[c(1,2,4)]
+    }
+    else if(input$opt_var == 'VALEUR') {
+      player <- player[-which(player[5]==0),]
+      player<-player[c(1,2,5)]
+    }
+    else if(input$opt_var == 'MINUTE') {
+      player <- player[-which(player[7]==0),]
+      player<-player[c(1,2,7)]
+    }
+    else if(input$opt_var == 'BUT') {
+      player <- player[-which(player[8]==0),]
+      player<-player[c(1,2,8)]
+    }
+    else if(input$opt_var == 'PASSE D') {
+      player <- player[-which(player[9]==0),]
+      player<-player[c(1,2,9)]
+    }
+    else if(input$opt_var == 'EFFICACITE') {
+      player <- player[-which(player[10]==0),]
+      player<-player[c(1,2,10)]
+    }
+    else if(input$opt_var == 'EFF/MIN') {
+      player <- player[-which(player[11]==0),]
+      player<-player[c(1,2,11)]
+    }
+    else {
+      player[1:11]
+    }
+    
+    player
+  })
+  
+  output$all_data <- renderTable({
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    if(input$opt_var == 'AGE') {
+      player<-player[c(1,2,3)]
+    }
+    else if(input$opt_var == 'POSTE') {
+      player<-player[c(1,2,4)]
+    }
+    else if(input$opt_var == 'VALEUR') {
+      player <- player[-which(player[5]==0),]
+      player<-player[c(1,2,5)]
+    }
+    else if(input$opt_var == 'MINUTE') {
+      player <- player[-which(player[7]==0),]
+      player<-player[c(1,2,7)]
+    }
+    else if(input$opt_var == 'BUT') {
+      player <- player[-which(player[8]==0),]
+      player<-player[c(1,2,8)]
+    }
+    else if(input$opt_var == 'PASSE D') {
+      player <- player[-which(player[9]==0),]
+      player<-player[c(1,2,9)]
+    }
+    else if(input$opt_var == 'EFFICACITE') {
+      player <- player[-which(player[10]==0),]
+      player<-player[c(1,2,10)]
+    }
+    else if(input$opt_var == 'EFF/MIN') {
+      player <- player[-which(player[11]==0),]
+      player<-player[c(1,2,11)]
+    }
+    else {
+      player[1:11]
+    }
+    
+    player
   })
   
   team <- data_team[2]
