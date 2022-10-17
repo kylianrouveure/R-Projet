@@ -7,17 +7,19 @@ shinyUI(fluidPage(
   
   tableOutput("title"),
   
-  tabsetPanel(
-    mainPanel(
-      plotOutput("graph_gen"),
-      tableOutput("all_data")
-    ),
-    sidebarPanel(
-      uiOutput("opt_team"),
-      uiOutput("opt_pays"),
-      uiOutput("opt_player"),
-      selectInput("opt_var", "Variable Principale", c('Tous', 'AGE', 'POSTE', 'VALEUR', 'MINUTE', 'BUT', 'PASSE D', 'EFFICACITE', 'EFF/MIN')),
-      tableOutput("resume_panel")
-    )
+  mainPanel(
+    actionButton("export_graph", "Exporter le graphique en PNG"),
+    plotOutput("graph_data"),
+    actionButton("export_data", "Exporter les données"),
+    tableOutput("table_data")
+  ),
+  sidebarPanel(
+    imageOutput("logoligue1"),
+    uiOutput("opt_team"),
+    uiOutput("opt_pays"),
+    uiOutput("opt_player"),
+    selectInput("opt_var", "Variable Principale", c('Tous', 'AGE', 'POSTE', 'VALEUR', 'MINUTE', 'BUT', 'PASSE D', 'EFFICACITE', 'EFF/MIN')),
+    tableOutput("resume_panel"),
+    id = "nav"
   )
 ))

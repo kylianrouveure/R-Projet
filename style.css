@@ -2,6 +2,8 @@ body {
   font-family: "Gill Sans", sans-serif;
   text-align: center;
   animation-duration: 1.5s;
+  color: white;
+  background-color: #212F3C;
 }
 ::-webkit-scrollbar {
   width: 5px;
@@ -13,6 +15,43 @@ body {
   background-color: dimgray;
   border-radius: 5px;
 }
-#imageHeader {
-  
+#header {
+  margin:-13px;
+  padding-bottom:10px;
+  border-radius: 0 0 20px 20px;
+  color: white;
+  background-color: #283747;
+  box-shadow: 0px 2px 8px #34495E;
+}
+#nav {
+  width: 90%;
+  margin-top: 50px;
+  float:right;
+  background-color: #283747;
+  box-shadow: 0px 2px 8px #34495E;
+}
+#opt_team {
+  margin-top: -320px;
+}
+#export_graph {
+  width: 100%;
+  margin: 50px 20px 10px 20px;
+  color: white;
+  background-color: #1D8348;
+  box-shadow: 0px 0px 8px #34495E;
+}
+#export_data {
+  width: 100%;
+  margin: 0px 20px 10px 20px;
+  color: white;
+  background-color: #1D8348;
+  box-shadow: 0px 0px 8px #34495E;
+}
+#table_data {
+  font-size: 12px;
+  margin: 20px 20px 50px 20px;
+  text-align: center;
+}
+#graph_data {
+  margin: 20px 20px 50px 20px;
 }

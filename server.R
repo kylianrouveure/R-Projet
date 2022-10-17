@@ -24,14 +24,21 @@ shinyServer(function(input, output) {
   
   output$title <- renderText({
     paste("<div id='header' >
-          <br/>
-          <i>HADBI Souleimane, VIENNE Soleymane, DE NICOLA Romain & ROUVEURE Kylian</i>
-          <br/><br/>
-          <center><strong style='text-decoration: underline;font-weight: lighter;font-size:2em;' >
-            Projet R : Ligue 1
-          </strong></center>
+            <br/>
+            <i>HADBI Souleimane, VIENNE Soleymane, DE NICOLA Romain & ROUVEURE Kylian</i>
+            <br/><br/>
+            <center><strong style='text-decoration: underline;font-weight: lighter;font-size:2em;' >
+              Projet R : Ligue 1
+            </strong></center>
           </div>")
   })
+  
+  output$logoligue1 <- renderImage({
+    list(src = "IMAGE/ligue1.png",
+         contentType = 'image/png',
+         width = "100%",
+         alt = "This is alternate text")
+  }, deleteFile = FALSE)
   
   output$resume_panel <- renderText({
     if(input$opt_player != "Tous") {
@@ -224,68 +231,10 @@ shinyServer(function(input, output) {
     paste("<center><strong style='font-size:1.5em;' >Info Gen</strong><br/>", content)
   })
   
-  output$all_data <- renderTable({
-    if(input$opt_player != "Tous") {
-      player<-data[(data[2]==input$opt_player),]
-    }
-    else {
-      if(input$opt_team != "Tous") {
-        if(input$opt_pays != "Tous") {
-          player<-data[(data[1]==input$opt_team),]
-          player<-player[(player[6]==input$opt_pays),]
-        }
-        else {
-          player<-data[(data[1]==input$opt_team),]
-        }
-      }
-      else {
-        if(input$opt_pays != "Tous") {
-          player<-data[(data[6]==input$opt_pays),]
-        }
-        else {
-          player<-data
-        }
-      }
-    }
-    
-    if(input$opt_var == 'AGE') {
-      player<-player[c(1,2,3)]
-    }
-    else if(input$opt_var == 'POSTE') {
-      player<-player[c(1,2,4)]
-    }
-    else if(input$opt_var == 'VALEUR') {
-      player <- player[-which(player[5]==0),]
-      player<-player[c(1,2,5)]
-    }
-    else if(input$opt_var == 'MINUTE') {
-      player <- player[-which(player[7]==0),]
-      player<-player[c(1,2,7)]
-    }
-    else if(input$opt_var == 'BUT') {
-      player <- player[-which(player[8]==0),]
-      player<-player[c(1,2,8)]
-    }
-    else if(input$opt_var == 'PASSE D') {
-      player <- player[-which(player[9]==0),]
-      player<-player[c(1,2,9)]
-    }
-    else if(input$opt_var == 'EFFICACITE') {
-      player <- player[-which(player[10]==0),]
-      player<-player[c(1,2,10)]
-    }
-    else if(input$opt_var == 'EFF/MIN') {
-      player <- player[-which(player[11]==0),]
-      player<-player[c(1,2,11)]
-    }
-    else {
-      player[1:11]
-    }
-    
-    player
+  output$graph_data <- renderPlot({
   })
   
-  output$all_data <- renderTable({
+  output$table_data <- renderTable({
     if(input$opt_player != "Tous") {
       player<-data[(data[2]==input$opt_player),]
     }
