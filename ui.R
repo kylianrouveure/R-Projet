@@ -9,7 +9,8 @@ shinyUI(fluidPage(
   
   tabsetPanel(
     mainPanel(
-      tableOutput("graph_gen")
+      plotOutput("graph_gen"),
+      tableOutput("all_data")
     ),
     sidebarPanel(
       uiOutput("opt_team"),
