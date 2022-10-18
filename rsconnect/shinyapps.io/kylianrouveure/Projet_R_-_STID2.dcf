@@ -5,9 +5,9 @@ account: kylianrouveure
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7331596
-bundleId: 6414143
+bundleId: 6414282
 url: https://kylianrouveure.shinyapps.io/Projet_R_-_STID2/
-when: 1666079175.85756
-lastSyncTime: 1666079175.85759
+when: 1666081858.69792
+lastSyncTime: 1666081858.69793
 asMultiple: FALSE
 asStatic: FALSE
