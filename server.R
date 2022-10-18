@@ -1,9 +1,18 @@
-library(readxl)
+#Library R Shiny
 library(shiny)
-library(scales)
+
+#Library liées à la connexion des données
+library(readxl)
 library("RMySQL")
 
+#Library pour l'export excel
+library(writexl)
+
+#Library pour formater les chiffres
+library(scales)
+
 shinyServer(function(input, output) {
+  ## Code pour la connection avec une BDD Localhost ##
   #bdd <- dbConnect(MySQL(), user = 'root', password = NULL, dbname = 'projet_r', host = '127.0.0.1', charset='utf8')
   
   #data_team <- fetch(dbSendQuery(bdd, "SELECT * FROM club"))
@@ -11,28 +20,348 @@ shinyServer(function(input, output) {
   #data_player <-  fetch(dbSendQuery(bdd, "SELECT name FROM player"))
   #data_perform <-  fetch(dbSendQuery(bdd, "SELECT name FROM perform"))
   
+  
+  ## Code pour la connection la base Excel ##
+  #Recupération des différentes tables
   data_team <- read_excel(path = "DATA/data.xlsx", col_names = TRUE, sheet = "CLUB")
   data_country <- read_excel(path = "DATA/data.xlsx", col_names = TRUE, sheet = "COUNTRY")
   data_player <- read_excel(path = "DATA/data.xlsx", col_names = TRUE, sheet = "PLAYER")
   data_perform <- read_excel(path = "DATA/data.xlsx", col_names = TRUE, sheet = "PERFORM")
   
+  #Jointure des différentes tables
   data <- merge(x = data_player, y = data_country, by.x = "NATION", by.y = "ABV_COUNTRY", all.x = TRUE)
   data <- merge(x = data, y = data_perform, by.x = "ID_PLAYER", by.y = "ID_PLAYER", all.x = TRUE)
   data <- merge(x = data_team, y = data, by.x = "ID_CLUB", by.y = "ID_CLUB", all.x = TRUE)
   
+  #Table finale
   data <- data[,c(-1,-3,-4,-9)]
   
+  
+  #Header
   output$title <- renderText({
     paste("<div id='header' >
-          <br/>
-          <i>HADBI Souleimane, VIENNE Soleymane, DE NICOLA Romain & ROUVEURE Kylian</i>
-          <br/><br/>
-          <center><strong style='text-decoration: underline;font-weight: lighter;font-size:2em;' >
-            Projet R : Ligue 1
-          </strong></center>
+            <br/>
+            <i>HADBI Souleimane, VIENNE Soleymane, DE NICOLA Romain & ROUVEURE Kylian</i>
+            <br/><br/>
+            <center><strong style='text-decoration: underline;font-weight: lighter;font-size:2em;' >
+              Projet R : Ligue 1
+            </strong></center>
           </div>")
   })
   
+  #Fonctions du Content
+  #Bouton de l'export des graphiques
+  observeEvent(input$export_graph, {
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    jpeg("DOWNLOAD/GRAPH/graph.jpg")
+    if(input$opt_var == 'AGE') {
+      var <- player[3]
+      boxplot(var, horizontal = TRUE, col = "lightgreen", main = "Partition de l'age des joueurs")
+    }
+    else if(input$opt_var == 'POSTE') {
+      player <- player[-which(player[10]==0),]
+      var1 <- player[,4]
+      var2 <- player[,10]
+      
+      boxplot(var2~var1, main= "Partition de l'efficacité des joueurs par poste", color="blue",xlab="Poste",ylab="Efficacité",col="lightyellow")
+    }
+    else if(input$opt_var == 'VALEUR') {
+      player <- player[-which(player[5]==0),]
+      player <- player[,5]
+      
+      boxplot(player, ylim=c(1,170000000), main="Partition des joueurs par leurs valeurs en €", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'MINUTE') {
+      player<-player[7]
+      
+      boxplot(player, main="Partition des joueurs par leurs minutes de jeu", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'BUT') {
+      player<-player[8]
+      
+      boxplot(player, main="Partition des joueurs par leurs buts", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'PASSE D') {
+      player<-player[9]
+      boxplot(player, main="Partition des joueurs par leurs buts", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'EFFICACITE') {
+      player<-player[10]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'EFF/MIN') {
+      player <- player[-which(player[11]==0),]
+      player<-player[11]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées par minutes jouées", color="lightgreen",col="lightgreen")
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        player<-table(player[6])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les pays par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+      else {
+        player<-table(player[1])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les equipes par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+    }
+    dev.off() 
+  })
+  
+  #Sortie du graphique en fonction des filtres
+  output$graph_data <- renderPlot({
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    if(input$opt_var == 'AGE') {
+      var <- player[3]
+      boxplot(var, horizontal = TRUE, col = "lightgreen", main = "Partition de l'age des joueurs")
+    }
+    else if(input$opt_var == 'POSTE') {
+      player <- player[-which(player[10]==0),]
+      var1 <- player[,4]
+      var2 <- player[,10]
+      
+      boxplot(var2~var1, main= "Partition de l'efficacité des joueurs par poste", color="blue",xlab="Poste",ylab="Efficacité",col="lightyellow")
+    }
+    else if(input$opt_var == 'VALEUR') {
+      player <- player[-which(player[5]==0),]
+      player <- player[,5]
+      
+      boxplot(player, ylim=c(1,170000000), main="Partition des joueurs par leurs valeurs en €", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'MINUTE') {
+      player<-player[7]
+      
+      boxplot(player, main="Partition des joueurs par leurs minutes de jeu", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'BUT') {
+      player<-player[8]
+      
+      boxplot(player, main="Partition des joueurs par leurs buts", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'PASSE D') {
+      player<-player[9]
+      boxplot(player, main="Partition des joueurs par leurs buts", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'EFFICACITE') {
+      player<-player[10]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'EFF/MIN') {
+      player <- player[-which(player[11]==0),]
+      player<-player[11]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées par minutes jouées", color="lightgreen",col="lightgreen")
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        player<-table(player[6])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les pays par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+      else {
+        player<-table(player[1])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les equipes par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+    }
+  })
+  
+  #Bouton de l'export des données
+  observeEvent(input$export_data, {
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    write_xlsx(player, "DOWNLOAD/DATA/data.xlsx")
+  })
+  
+  #Sortie des données finales
+  output$table_data <- renderTable({
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    if(input$opt_var == 'AGE') {
+      player<-player[c(1,2,3)]
+    }
+    else if(input$opt_var == 'POSTE') {
+      player<-player[c(1,2,4)]
+    }
+    else if(input$opt_var == 'VALEUR') {
+      player <- player[-which(player[5]==0),]
+      player<-player[c(1,2,5)]
+    }
+    else if(input$opt_var == 'MINUTE') {
+      player <- player[-which(player[7]==0),]
+      player<-player[c(1,2,7)]
+    }
+    else if(input$opt_var == 'BUT') {
+      player <- player[-which(player[8]==0),]
+      player<-player[c(1,2,8)]
+    }
+    else if(input$opt_var == 'PASSE D') {
+      player <- player[-which(player[9]==0),]
+      player<-player[c(1,2,9)]
+    }
+    else if(input$opt_var == 'EFFICACITE') {
+      player <- player[-which(player[10]==0),]
+      player<-player[c(1,2,10)]
+    }
+    else if(input$opt_var == 'EFF/MIN') {
+      player <- player[-which(player[11]==0),]
+      player<-player[c(1,2,11)]
+    }
+    else {
+      player<-player[1:11]
+    }
+    
+    player
+  })
+  
+  #Fonctions de la Nav
+  #Image du logo de la ligue 1
+  output$logoligue1 <- renderImage({
+    list(src = "IMAGE/ligue1.png",
+         contentType = 'image/png',
+         width = "100%",
+         alt = "This is alternate text")
+  }, deleteFile = FALSE)
+  
+  #Ajustement data obligatoire
+  team <- data_team[2]
+  colnames(team)[1] <- "Club"
+  
+  #1er input sur le filtre par équipe
+  output$opt_team <- renderUI({
+    tagList(
+      selectInput("opt_team", "Équipe", c("Tous",team))
+    )
+  })
+  
+  #2eme input sur le filtre par pays
+  output$opt_pays <- renderUI({
+    if(input$opt_team != "Tous") {
+      pays<-data[(data[1]==input$opt_team),][6]
+    }
+    else {
+      pays<-data_country[3]
+    }
+    tagList(
+      selectInput("opt_pays", "Pays", c("Tous",pays))
+    )
+  })
+  
+  #3eme input sur le filtre par player
+  output$opt_player <- renderUI({
+    if(input$opt_team != "Tous") {
+      if(input$opt_pays != "Tous") {
+        player<-data[(data[1]==input$opt_team),]
+        player<-player[(player[6]==input$opt_pays),][2]
+      }
+      else {
+        player<-data[(data[1]==input$opt_team),][2]
+      }
+    }
+    else {
+      if(input$opt_pays != "Tous") {
+        player<-data[(data[6]==input$opt_pays),][2]
+      }
+      else {
+        player<-data_player[2]
+      }
+    }
+    tagList(
+      selectInput("opt_player", "Joueur", c("Tous",player))
+    )
+  })
+  
+  #resume en chiffre clé de la data en fonction des filtres choisis
   output$resume_panel <- renderText({
     if(input$opt_player != "Tous") {
       player<-data[(data[2]==input$opt_player),]
@@ -222,171 +551,5 @@ shinyServer(function(input, output) {
     }
     
     paste("<center><strong style='font-size:1.5em;' >Info Gen</strong><br/>", content)
-  })
-  
-  output$all_data <- renderTable({
-    if(input$opt_player != "Tous") {
-      player<-data[(data[2]==input$opt_player),]
-    }
-    else {
-      if(input$opt_team != "Tous") {
-        if(input$opt_pays != "Tous") {
-          player<-data[(data[1]==input$opt_team),]
-          player<-player[(player[6]==input$opt_pays),]
-        }
-        else {
-          player<-data[(data[1]==input$opt_team),]
-        }
-      }
-      else {
-        if(input$opt_pays != "Tous") {
-          player<-data[(data[6]==input$opt_pays),]
-        }
-        else {
-          player<-data
-        }
-      }
-    }
-    
-    if(input$opt_var == 'AGE') {
-      player<-player[c(1,2,3)]
-    }
-    else if(input$opt_var == 'POSTE') {
-      player<-player[c(1,2,4)]
-    }
-    else if(input$opt_var == 'VALEUR') {
-      player <- player[-which(player[5]==0),]
-      player<-player[c(1,2,5)]
-    }
-    else if(input$opt_var == 'MINUTE') {
-      player <- player[-which(player[7]==0),]
-      player<-player[c(1,2,7)]
-    }
-    else if(input$opt_var == 'BUT') {
-      player <- player[-which(player[8]==0),]
-      player<-player[c(1,2,8)]
-    }
-    else if(input$opt_var == 'PASSE D') {
-      player <- player[-which(player[9]==0),]
-      player<-player[c(1,2,9)]
-    }
-    else if(input$opt_var == 'EFFICACITE') {
-      player <- player[-which(player[10]==0),]
-      player<-player[c(1,2,10)]
-    }
-    else if(input$opt_var == 'EFF/MIN') {
-      player <- player[-which(player[11]==0),]
-      player<-player[c(1,2,11)]
-    }
-    else {
-      player[1:11]
-    }
-    
-    player
-  })
-  
-  output$all_data <- renderTable({
-    if(input$opt_player != "Tous") {
-      player<-data[(data[2]==input$opt_player),]
-    }
-    else {
-      if(input$opt_team != "Tous") {
-        if(input$opt_pays != "Tous") {
-          player<-data[(data[1]==input$opt_team),]
-          player<-player[(player[6]==input$opt_pays),]
-        }
-        else {
-          player<-data[(data[1]==input$opt_team),]
-        }
-      }
-      else {
-        if(input$opt_pays != "Tous") {
-          player<-data[(data[6]==input$opt_pays),]
-        }
-        else {
-          player<-data
-        }
-      }
-    }
-    
-    if(input$opt_var == 'AGE') {
-      player<-player[c(1,2,3)]
-    }
-    else if(input$opt_var == 'POSTE') {
-      player<-player[c(1,2,4)]
-    }
-    else if(input$opt_var == 'VALEUR') {
-      player <- player[-which(player[5]==0),]
-      player<-player[c(1,2,5)]
-    }
-    else if(input$opt_var == 'MINUTE') {
-      player <- player[-which(player[7]==0),]
-      player<-player[c(1,2,7)]
-    }
-    else if(input$opt_var == 'BUT') {
-      player <- player[-which(player[8]==0),]
-      player<-player[c(1,2,8)]
-    }
-    else if(input$opt_var == 'PASSE D') {
-      player <- player[-which(player[9]==0),]
-      player<-player[c(1,2,9)]
-    }
-    else if(input$opt_var == 'EFFICACITE') {
-      player <- player[-which(player[10]==0),]
-      player<-player[c(1,2,10)]
-    }
-    else if(input$opt_var == 'EFF/MIN') {
-      player <- player[-which(player[11]==0),]
-      player<-player[c(1,2,11)]
-    }
-    else {
-      player[1:11]
-    }
-    
-    player
-  })
-  
-  team <- data_team[2]
-  colnames(team)[1] <- "Club"
-  
-  output$opt_team <- renderUI({
-    tagList(
-      selectInput("opt_team", "Équipe", c("Tous",team))
-    )
-  })
-  
-  output$opt_pays <- renderUI({
-    if(input$opt_team != "Tous") {
-      pays<-data[(data[1]==input$opt_team),][6]
-    }
-    else {
-      pays<-data_country[3]
-    }
-    tagList(
-      selectInput("opt_pays", "Pays", c("Tous",pays))
-    )
-  })
-  
-  output$opt_player <- renderUI({
-    if(input$opt_team != "Tous") {
-      if(input$opt_pays != "Tous") {
-        player<-data[(data[1]==input$opt_team),]
-        player<-player[(player[6]==input$opt_pays),][2]
-      }
-      else {
-        player<-data[(data[1]==input$opt_team),][2]
-      }
-    }
-    else {
-      if(input$opt_pays != "Tous") {
-        player<-data[(data[6]==input$opt_pays),][2]
-      }
-      else {
-        player<-data_player[2]
-      }
-    }
-    tagList(
-      selectInput("opt_player", "Joueur", c("Tous",player))
-    )
   })
 })

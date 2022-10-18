@@ -1,0 +1,111 @@
+---
+title: "TP RShiny"
+output:
+  html_document: default
+  word_document: default
+date: <font size="2">2022-10-18</font>
+subtitle: <font size="2"> HADBI Souleimane, NICOLA Romain, ROUVEURE Kylian, VIENNE Soleymane</font>
+---
+
+<font size="5"> Introduction </font>
+
+Nous allons travaillé sur un jeu de données concernant le football. Il s'agit de données sur les tous les joueurs de Ligue 1 de la saison 2021-2022. Les variables sont : noms, âges, nationalités, poste, valeur marchande, minutes joués, nombre de buts, nombre de passes décisive. Voici une vue de cette la base de données :
+
+```{r,echo=FALSE}
+knitr::include_graphics('C:/Users/shadbi/Documents/Capture.png')
+```
+
+<font size="5"> I-Nation </font>
+
+Dans un premier temps on va importer le jeu de données, et nous allons étudié la variable "NATION" pour savoir qu'elle est la nation la plus représenté en Ligue 1 en 2022. Nous utilisons ce code
+
+```{r,warning=FALSE}
+TAB <- read.csv(file="C:/Users/shadbi/Documents/TP-R.csv",header = TRUE, sep = ";")
+
+nom_var <- "NATION"
+var <- TAB[, nom_var]
+
+Nval <- sum(!is.na(var))
+
+Eff <- table(var)
+Freq <- Eff / Nval
+```
+
+Avec ce code, nous avons un barplot des nations les plus représenté en Ligue 1.
+
+```{r,eval=TRUE}
+ordre.dfreq <- order(Freq, decreasing = TRUE)
+
+ordre.dfreq <- ordre.dfreq[1:5]
+```
+
+```{r}
+barplot(Freq[ordre.dfreq], main = "Top 5 des nationalités des joueurs de Ligue 1", col= "lightblue" , ylab = "Fréquences")
+
+```
+
+On remarque que la nation qui se démarque est la France, avec plus de 90% des joueurs qui sont français.
+
+<font size="5"> II-Age </font>
+
+```{r,echo=FALSE}
+nom_var <- "AGE"
+var <- TAB[, nom_var]
+
+Nval <- sum(!is.na(var))
+
+Eff <- table(var)
+Freq <- Eff / Nval
+```
+
+Nous allons maintenant nous intéresser à l'age des joueurs de Ligue 1. De la même façon que le code de la nation, nous allons faire un boxplot de l'age des joueurs de Ligue 1.
+
+```{r}
+boxplot(var, horizontal = TRUE, col = "lightgreen", xlab = "Age des joueurs de Ligue 1")
+```
+
+On voit que l'âge moyen est de 24ans et qu'il y a un joueur qui a 40ans.
+
+<font size="5"> III-Buts selon minutes joués </font>
+
+Dans cette partie, nous allons voir si en jouant plus, on peux mettre plus de buts. On veux savoir si le nombre de buts dépend du nombre de minutes joués.
+
+```{r,echo=FALSE}
+nom_var <- "MIN"
+var1 <- TAB[, nom_var]
+
+nom_var1 <- "GOAL"
+var2 <- TAB[, nom_var1]
+
+plot(x=var1 ,y=var2 , xlab="Minutes" , ylab="Buts" , main="Nombres de but selon le nombre de minutes" )
+
+abline( lm(var2 ~ var1 )$coef ,  col= "red")
+
+
+```
+
+Avec ce graphique, notamment à la courbe de tendance que plus on joue plus on a l'occasion de marquer des buts.
+
+```{r,include=FALSE}
+cor(var1 ,var2, method =c("pearson"))
+```
+
+<font size="5"> IV-Poste qui marque le plus </font>
+
+Dans cette partie, nous allons s'intéresser au poste qui marque le plus de but.
+
+```{r,echo=FALSE}
+nom_var <- "POSTE"
+var1 <- TAB[, nom_var]
+
+nom_var1 <- "GOAL"
+var2 <- TAB[, nom_var1]
+
+boxplot(var2~var1, main= "boxplot", color="blue",xlab="Minutes",ylab="Buts",col="lightyellow")
+```
+
+On remarque un classement dans ce graphique où les attaquants marquent le plus suivis par les milieux de terrains, ensuite les défenseurs. En 2022, aucun gardien n'a marqué.
+
+<font size="5"> Conclusion </font>
+
+On a donc beaucoup d'informations générals sur les joueurs notamment que la France est la nationalité la plus représenté ou que le joueur le plus vieux a 40ans.
