@@ -8,7 +8,7 @@ shinyUI(fluidPage(
   tableOutput("title"),
   
   mainPanel(
-    actionButton("export_graph", "Exporter le graphique en PNG"),
+    actionButton("export_graph", "Exporter le graphique "),
     plotOutput("graph_data"),
     actionButton("export_data", "Exporter les données"),
     tableOutput("table_data")

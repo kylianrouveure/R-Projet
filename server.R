@@ -51,10 +51,167 @@ shinyServer(function(input, output) {
   
   #Fonctions du Content
   #Bouton de l'export des graphiques
-  
+  observeEvent(input$export_graph, {
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    jpeg("DOWNLOAD/GRAPH/graph.jpg")
+    if(input$opt_var == 'AGE') {
+      var <- player[3]
+      boxplot(var, horizontal = TRUE, col = "lightgreen", main = "Partition de l'age des joueurs")
+    }
+    else if(input$opt_var == 'POSTE') {
+      player <- player[-which(player[10]==0),]
+      var1 <- player[,4]
+      var2 <- player[,10]
+      
+      boxplot(var2~var1, main= "Partition de l'efficacité des joueurs par poste", color="blue",xlab="Poste",ylab="Efficacité",col="lightyellow")
+    }
+    else if(input$opt_var == 'VALEUR') {
+      player <- player[-which(player[5]==0),]
+      player <- player[,5]
+      
+      boxplot(player, ylim=c(1,170000000), main="Partition des joueurs par leurs valeurs en €", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'MINUTE') {
+      player<-player[7]
+      
+      boxplot(player, main="Partition des joueurs par leurs minutes de jeu", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'BUT') {
+      player<-player[8]
+      
+      boxplot(player, main="Partition des joueurs par leurs buts", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'PASSE D') {
+      player<-player[9]
+      boxplot(player, main="Partition des joueurs par leurs buts", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'EFFICACITE') {
+      player<-player[10]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'EFF/MIN') {
+      player <- player[-which(player[11]==0),]
+      player<-player[11]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées par minutes jouées", color="lightgreen",col="lightgreen")
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        player<-table(player[6])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les pays par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+      else {
+        player<-table(player[1])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les equipes par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+    }
+    dev.off() 
+  })
   
   #Sortie du graphique en fonction des filtres
   output$graph_data <- renderPlot({
+    if(input$opt_player != "Tous") {
+      player<-data[(data[2]==input$opt_player),]
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[1]==input$opt_team),]
+          player<-player[(player[6]==input$opt_pays),]
+        }
+        else {
+          player<-data[(data[1]==input$opt_team),]
+        }
+      }
+      else {
+        if(input$opt_pays != "Tous") {
+          player<-data[(data[6]==input$opt_pays),]
+        }
+        else {
+          player<-data
+        }
+      }
+    }
+    
+    if(input$opt_var == 'AGE') {
+      var <- player[3]
+      boxplot(var, horizontal = TRUE, col = "lightgreen", main = "Partition de l'age des joueurs")
+    }
+    else if(input$opt_var == 'POSTE') {
+      player <- player[-which(player[10]==0),]
+      var1 <- player[,4]
+      var2 <- player[,10]
+      
+      boxplot(var2~var1, main= "Partition de l'efficacité des joueurs par poste", color="blue",xlab="Poste",ylab="Efficacité",col="lightyellow")
+    }
+    else if(input$opt_var == 'VALEUR') {
+      player <- player[-which(player[5]==0),]
+      player <- player[,5]
+      
+      boxplot(player, ylim=c(1,170000000), main="Partition des joueurs par leurs valeurs en €", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'MINUTE') {
+      player<-player[7]
+      
+      boxplot(player, main="Partition des joueurs par leurs minutes de jeu", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'BUT') {
+      player<-player[8]
+      
+      boxplot(player, main="Partition des joueurs par leurs buts", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'PASSE D') {
+      player<-player[9]
+      boxplot(player, main="Partition des joueurs par leurs buts", color="lightgreen",col="lightgreen")
+    }
+    else if(input$opt_var == 'EFFICACITE') {
+      player<-player[10]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées", color="blue",col="lightyellow")
+    }
+    else if(input$opt_var == 'EFF/MIN') {
+      player <- player[-which(player[11]==0),]
+      player<-player[11]
+      
+      boxplot(player, main="Partition des joueurs par leurs efficacitées par minutes jouées", color="lightgreen",col="lightgreen")
+    }
+    else {
+      if(input$opt_team != "Tous") {
+        player<-table(player[6])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les pays par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+      else {
+        player<-table(player[1])
+        player<-sort(player, decreasing = TRUE)
+        barplot(player, main="Trie sur les equipes par le nombre de joueurs", color="lightgreen",col="lightgreen", las = 2, cex.names = 1)
+      }
+    }
   })
   
   #Bouton de l'export des données
@@ -141,7 +298,7 @@ shinyServer(function(input, output) {
       player<-player[c(1,2,11)]
     }
     else {
-      player[1:11]
+      player<-player[1:11]
     }
     
     player
