@@ -170,10 +170,9 @@ shinyServer(function(input, output) {
       boxplot(var2~var1, main= "Partition de l'efficacité des joueurs par poste", color="blue",xlab="Poste",ylab="Efficacité",col="lightyellow")
     }
     else if(input$opt_var == 'VALEUR') {
-      player <- player[-which(player[5]==0),]
       player <- player[,5]
       
-      boxplot(player, ylim=c(1,170000000), main="Partition des joueurs par leurs valeurs en €", color="blue",col="lightyellow")
+      boxplot(player, main="Partition des joueurs par leurs valeurs en €", color="blue",col="lightyellow")
     }
     else if(input$opt_var == 'MINUTE') {
       player<-player[7]
@@ -274,7 +273,6 @@ shinyServer(function(input, output) {
       player<-player[c(1,2,4)]
     }
     else if(input$opt_var == 'VALEUR') {
-      player <- player[-which(player[5]==0),]
       player<-player[c(1,2,5)]
     }
     else if(input$opt_var == 'MINUTE') {
@@ -424,7 +422,6 @@ shinyServer(function(input, output) {
     else if(input$opt_var == 'VALEUR') {
       nothing <- player[-which(player[5]>0),]
       
-      player <- player[-which(player[5]==0),]
       player <- player[5]
       
       nothing_pc <- (nrow(nothing)/nrow(player))*100
@@ -529,11 +526,10 @@ shinyServer(function(input, output) {
     }
     else if(input$opt_var == 'EFF/MIN') {
       nothing <- player[-which(player[11]>0),]
-      player<-player[11]
-      nothing_pc <- (nrow(nothing)/nrow(player))*100
       
-      player <- player[-which(player[11]==0),]
       player<-player[11]
+      
+      nothing_pc <- (nrow(nothing)/nrow(player))*100
       
       moy<-(round(mean(player[,1], na.rm = T),1))
       max<-(round(max(player[,1], na.rm = T),1))
