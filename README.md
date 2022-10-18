@@ -15,5 +15,5 @@
   <li>Export de données</li>
 </ul>
 <p>
- Lien Shiny.io : <a href="https://kylianrouveure.shinyapps.io/Projet_R_-_STID2/">CLICK</a>
+ Lien Shiny.io : <a href="https://kylianrouveure.shinyapps.io/Projet_R_-_STID2/" target="_blank" >CLICK</a>
 </p>
