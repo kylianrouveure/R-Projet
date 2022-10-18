@@ -368,12 +368,13 @@ shinyServer(function(input, output) {
     }
     else {
       if(input$opt_team != "Tous") {
+        team <- input$opt_team
         if(input$opt_pays != "Tous") {
-          player<-data[(data[1]==input$opt_team),]
+          player<-data[(data[1]==team),]
           player<-player[(player[6]==input$opt_pays),]
         }
         else {
-          player<-data[(data[1]==input$opt_team),]
+          player<-data[(data[1]==team),]
         }
       }
       else {
@@ -527,6 +528,10 @@ shinyServer(function(input, output) {
                      Somme:",somme,"B+D ")
     }
     else if(input$opt_var == 'EFF/MIN') {
+      nothing <- player[-which(player[11]>0),]
+      player<-player[11]
+      nothing_pc <- (nrow(nothing)/nrow(player))*100
+      
       player <- player[-which(player[11]==0),]
       player<-player[11]
       
@@ -537,7 +542,8 @@ shinyServer(function(input, output) {
       somme<-label_number(accuracy = 1)(round(sum(player[,1], na.rm = T),1))
       
       content<-paste("Nombre :", nrow(player), "joueur(s)<br/>",
-                     "<hr style='border: 1px solid #aaa;' /><strong style='font-size:1.5em;' >Efficacité/Min</strong><br/> 
+                     "<hr style='border: 1px solid #aaa;' /><strong style='font-size:1.5em;' >Efficacité/Min</strong><br/>  
+                     Nb joueur à 0:",nrow(nothing),"joueur(s) - (",round(nothing_pc, 1),"% ) <br/><br/>
                      Moyenne:",moy,"min <br/> 
                      Ecart-type:",sd,"min <br/><br/>
                      Max:",max,"min <br/>
